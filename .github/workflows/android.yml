@@ -42,22 +42,16 @@ jobs:
       run: |
         sed -i "s/'daytona'/'daytona_app', 'SDL3-shared'/g" platform/mobile/android/app/build.gradle
 
+    # Step B: Searches the Java codebase and forces the app to boot 'daytona_app' instead of 'main'
+    - name: Patch Java Bootloader Core
+      run: |
+        find platform/mobile/android/ -name "*.java" -exec sed -i 's/"main"/"daytona_app"/g' {} +
+
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew
 
-    # Step B: Runs the actual compilation to create the framework elements
-    - name: Compile APK Framework
-      run: |
-        cd platform/mobile/android
-        ./gradlew assembleDebug --no-daemon
-
-    # Step C: Safety-first file finder that renames libdaytona_app.so to libmain.so wherever it is hidden
-    - name: Find and Rename Built Library
-      run: |
-        find platform/mobile/android/app/build/ -name "libdaytona_app.so" -exec dir="" {} \; -exec sh -c 'cp "$1" "$(dirname "$1")/libmain.so"' _ {} \;
-
-    # Step D: Finalize bundle compression with our newly aligned binary structure
-    - name: Repack Finalized Android Package
+    # Step C: Runs a single, clean compilation pass so nothing gets stripped out by a repack
+    - name: Compile and Pack Finalized APK
       run: |
         cd platform/mobile/android
         ./gradlew assembleDebug --no-daemon

@@ -36,7 +36,6 @@ jobs:
       run: |
         sed -i "/ndk {/a \            abiFilters 'arm64-v8a'" platform/mobile/android/app/build.gradle
 
-    # FIX: Generates the missing gradlew system infrastructure natively
     - name: Initialize Gradle Wrapper Files
       run: |
         cd platform/mobile/android
@@ -45,10 +44,11 @@ jobs:
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew
 
+    # FIX: Explicitly tells Gradle to compile 'daytona_app' target and packaging dependencies
     - name: Compile and Pack Finalized APK
       run: |
         cd platform/mobile/android
-        ./gradlew assembleDebug --no-daemon
+        ./gradlew assembleDebug -Pandroid.native.buildTargets="daytona_app" --no-daemon
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4

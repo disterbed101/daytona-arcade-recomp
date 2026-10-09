@@ -37,20 +37,20 @@ jobs:
         cd platform/mobile/android
         gradle wrapper
 
-    # Step A: Tells the build manager to target both the core application and SDL3 together
+    # Step A: Configures the app layout build definitions to bundle SDL3 and the app modules together
     - name: Patch App Build Target Configuration
       run: |
         sed -i "s/'daytona'/'daytona_app', 'SDL3-shared'/g" platform/mobile/android/app/build.gradle
 
-    # Step B: Injects a CMake rule that forces the binary library output to name itself libmain.so natively
+    # Step B: Injects the naming rule right into the root C++ build configuration
     - name: Force CMake to Output File as libmain
       run: |
-        echo "set_target_properties(daytona_app PROPERTIES OUTPUT_NAME \"main\")" >> platform/mobile/android/app/src/main/cpp/CMakeLists.txt
+        echo "set_target_properties(daytona_app PROPERTIES OUTPUT_NAME \"main\")" >> CMakeLists.txt
 
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew
 
-    # Compiles everything cleanly on the first shot with zero hacky copy commands
+    # Compiles everything on the first try with the proper binary naming system
     - name: Compile Finalized APK Container
       run: |
         cd platform/mobile/android

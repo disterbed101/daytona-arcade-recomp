@@ -32,36 +32,13 @@ jobs:
     - name: Run Extraction Setup
       run: python3 scripts/setup.py --no-build
 
-    - name: Generate Missing Gradle Wrapper
-      run: |
-        cd platform/mobile/android
-        gradle wrapper
-
-    # Step A: Tells the build manager to target both the core application and SDL3 together
-    - name: Patch App Build Target Configuration
-      run: |
-        sed -i "s/'daytona'/'daytona_app', 'SDL3-shared'/g" platform/mobile/android/app/build.gradle
-
-    # Step B: Forces the core CMake file to build daytona_app as a SHARED library (.so) instead of a static element
-    - name: Convert Target to Shared Library
-      run: |
-        sed -i 's/add_library(daytona_app/add_library(daytona_app SHARED/g' CMakeLists.txt || true
-        sed -i 's/add_executable(daytona_app/add_library(daytona_app SHARED/g' CMakeLists.txt || true
-
-    # Step C: Forces the build system to lock the outputs into 64-bit arm64-v8a structure explicitly
     - name: Force 64-Bit ABI Packaging
       run: |
         sed -i "/ndk {/a \            abiFilters 'arm64-v8a'" platform/mobile/android/app/build.gradle
 
-    # Step D: Searches the Java codebase and forces the app to boot 'daytona_app' instead of 'main'
-    - name: Patch Java Bootloader Core
-      run: |
-        find platform/mobile/android/ -name "*.java" -exec sed -i 's/"main"/"daytona_app"/g' {} +
-
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew
 
-    # Step E: Runs a clean compilation pass with the architecture locking filters active
     - name: Compile and Pack Finalized APK
       run: |
         cd platform/mobile/android

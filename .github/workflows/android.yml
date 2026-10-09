@@ -1,7 +1,7 @@
 name: Build Android APK
 
 on:
-  workflow_dispatch: # Allows you to manually start the build with a button
+  workflow_dispatch:
 
 jobs:
   build:
@@ -10,9 +10,11 @@ jobs:
     steps:
     - name: Checkout Source Code
       uses: actions/checkout@v4
+      with:
+        submodules: recursive # Ensures any nested dependencies are pulled down
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5 # Upgraded to v5 to fix the warning
       with:
         distribution: 'zulu'
         java-version: '17'
@@ -25,17 +27,18 @@ jobs:
       with:
         python-version: '3.10'
 
-    # Runs the project setup without requiring physical ROMs for the skeleton build
+    # Unpacks internal configuration templates required by the build
     - name: Run Extraction Setup
       run: python3 scripts/setup.py --no-build
 
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew
 
+    # Builds the application explicitly via the Gradle wrapper file
     - name: Compile APK with Gradle
       run: |
         cd platform/mobile/android
-        ./gradlew :app:assembleDebug
+        ./gradlew assembleDebug --no-daemon
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4

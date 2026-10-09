@@ -32,10 +32,10 @@ jobs:
     - name: Run Extraction Setup
       run: python3 scripts/setup.py --no-build
 
-    # FIX: Corrects the hardcoded target in build.gradle from daytona to daytona_app
-    - name: Fix Android Native Target Name
+    # FIX: Instructs Gradle to build both the game core and the missing SDL3 runtime environment
+    - name: Fix Android Native Target Names
       run: |
-        sed -i "s/'daytona'/'daytona_app'/g" platform/mobile/android/app/build.gradle
+        sed -i "s/'daytona'/'daytona_app', 'SDL3-shared'/g" platform/mobile/android/app/build.gradle
 
     - name: Force 64-Bit ABI Packaging
       run: |

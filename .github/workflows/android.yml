@@ -37,20 +37,20 @@ jobs:
         cd platform/mobile/android
         gradle wrapper
 
-    # Step A: Configures the app layout build definitions to bundle SDL3 and the app modules together
+    # Sets up the target application configurations to bundle SDL3 and the app modules together
     - name: Patch App Build Target Configuration
       run: |
         sed -i "s/'daytona'/'daytona_app', 'SDL3-shared'/g" platform/mobile/android/app/build.gradle
 
-    # Step B: Injects the naming rule right into the correct arcade C++ configuration file
-    - name: Force CMake to Output File as libmain
+    # Patches Gradle to automatically clone and name the C++ binary as libmain.so during assembly tasks
+    - name: Inject Automated Binary Naming Rule
       run: |
-        echo "set_target_properties(daytona_app PROPERTIES OUTPUT_NAME \"main\")" >> arcade/CMakeLists.txt
+        sed -i "/buildTypes {/i \    applicationVariants.all { variant -> variant.outputs.all { output -> output.processResourcesProvider.get().doLast { exec { commandLine 'ln', '-sf', 'libdaytona_app.so', \"\${project.buildDir}/intermediates/merged_native_libs/\${variant.name}/merge\${variant.name.capitalize()}NativeLibs/out/lib/arm64-v8a/libmain.so\" } } } }" platform/mobile/android/app/build.gradle
 
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew
 
-    # Compiles everything cleanly on the first shot with the proper internal binary layout names
+    # Compiles everything seamlessly on the first attempt with the fixed internal architecture names
     - name: Compile Finalized APK Container
       run: |
         cd platform/mobile/android

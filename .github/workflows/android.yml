@@ -37,10 +37,11 @@ jobs:
         cd platform/mobile/android
         gradle wrapper
 
-    # Patches the file so it builds BOTH the main app and the critical SDL3 dependencies
-    - name: Patch App Build Target Configuration
+    # Removes the hardcoded restriction line completely so Gradle builds all required libraries automatically
+    - name: Wipe Restricted Build Targets
       run: |
-        sed -i "s/'daytona'/'daytona_app', 'SDL3-shared'/g" platform/mobile/android/app/build.gradle
+        sed -i '/android.nativeBuildTargets/d' platform/mobile/android/app/build.gradle
+        sed -i '/android.nativeBuildTargets/d' platform/mobile/android/gradle.properties
 
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew

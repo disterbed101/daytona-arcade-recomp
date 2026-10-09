@@ -37,10 +37,10 @@ jobs:
         cd platform/mobile/android
         gradle wrapper
 
-    # Injects the target properties direct into the main configuration so Gradle embeds them on assembly
-    - name: Configure Gradle Built-In Native Targets
+    # Swaps out the target list configuration array to force-compile daytona_app and SDL3-shared together
+    - name: Patch App Build Target Configuration
       run: |
-        echo "android.nativeBuildTargets=daytona_app,SDL3-shared" >> platform/mobile/android/gradle.properties
+        sed -i "s/'daytona'/'daytona_app', 'SDL3-shared'/g" platform/mobile/android/app/build.gradle
 
     # Patches the Java engine layer so it tracks our target name perfectly
     - name: Patch Java Bootloader Core

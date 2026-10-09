@@ -37,28 +37,21 @@ jobs:
         cd platform/mobile/android
         gradle wrapper
 
-    # Patches the underlying setup file to explicitly process the target libraries together
+    # Step A: Tells the build manager to target both the core application and SDL3 together
     - name: Patch App Build Target Configuration
       run: |
         sed -i "s/'daytona'/'daytona_app', 'SDL3-shared'/g" platform/mobile/android/app/build.gradle
 
+    # Step B: Injects a CMake rule that forces the binary library output to name itself libmain.so natively
+    - name: Force CMake to Output File as libmain
+      run: |
+        echo "set_target_properties(daytona_app PROPERTIES OUTPUT_NAME \"main\")" >> platform/mobile/android/app/src/main/cpp/CMakeLists.txt
+
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew
 
-    # Compiles the libraries natively
-    - name: Compile APK Infrastructure
-      run: |
-        cd platform/mobile/android
-        ./gradlew assembleDebug --no-daemon
-
-    # Clones the engine library inside the active workspace directory, naming it exactly what Android expects
-    - name: Duplicate and Rename Library Target
-      run: |
-        cd platform/mobile/android/app/build/intermediates/merged_native_libs/debug/mergeDebugNativeLibs/out/lib/arm64-v8a/
-        cp libdaytona_app.so libmain.so
-
-    # Final assembly loop to embed our renamed file straight into the APK container
-    - name: Repack Finalized Android Package
+    # Compiles everything cleanly on the first shot with zero hacky copy commands
+    - name: Compile Finalized APK Container
       run: |
         cd platform/mobile/android
         ./gradlew assembleDebug --no-daemon

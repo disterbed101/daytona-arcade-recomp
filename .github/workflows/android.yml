@@ -37,14 +37,18 @@ jobs:
         cd platform/mobile/android
         gradle wrapper
 
+    # Patches the broken hardcoded target configuration inside the source code
+    - name: Patch Native Build Targets
+      run: |
+        sed -i 's/android.nativeBuildTargets=daytona/android.nativeBuildTargets=daytona_app/g' platform/mobile/android/gradle.properties
+
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew
 
-    # Forces Gradle to use the explicit daytona_app native targets
     - name: Compile APK with Gradle
       run: |
         cd platform/mobile/android
-        ./gradlew assembleDebug -Pandroid.nativeBuildTargets="daytona_app" --no-daemon
+        ./gradlew assembleDebug --no-daemon
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4

@@ -37,16 +37,23 @@ jobs:
         cd platform/mobile/android
         gradle wrapper
 
-    # Removes the hardcoded restriction line completely so Gradle builds all required libraries automatically
-    - name: Wipe Restricted Build Targets
-      run: |
-        sed -i '/android.nativeBuildTargets/d' platform/mobile/android/app/build.gradle
-        sed -i '/android.nativeBuildTargets/d' platform/mobile/android/gradle.properties
-
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew
 
-    - name: Compile APK with Gradle
+    # Compiles all underlying modules cleanly
+    - name: Compile APK Infrastructure
+      run: |
+        cd platform/mobile/android
+        ./gradlew assembleDebug --no-daemon
+
+    # Injects a copy of the target renamed as libmain.so into the active build asset folder
+    - name: Duplicate and Rename Library Target
+      run: |
+        cd platform/mobile/android/app/build/intermediates/merged_native_libs/debug/mergeDebugNativeLibs/out/lib/arm64-v8a/
+        cp libdaytona_app.so libmain.so
+
+    # Re-zips and finishes the installer container packing with the renamed library inside
+    - name: Repack Finalized Android Package
       run: |
         cd platform/mobile/android
         ./gradlew assembleDebug --no-daemon

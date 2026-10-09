@@ -32,7 +32,6 @@ jobs:
     - name: Run Extraction Setup
       run: python3 scripts/setup.py --no-build
 
-    # Generates the missing gradlew system wrapper files automatically
     - name: Generate Missing Gradle Wrapper
       run: |
         cd platform/mobile/android
@@ -41,10 +40,11 @@ jobs:
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew
 
+    # Forces Gradle to use the explicit daytona_app native targets
     - name: Compile APK with Gradle
       run: |
         cd platform/mobile/android
-        ./gradlew assembleDebug --no-daemon
+        ./gradlew assembleDebug -Pandroid.nativeBuildTargets="daytona_app" --no-daemon
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4

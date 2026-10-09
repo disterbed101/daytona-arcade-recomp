@@ -37,10 +37,10 @@ jobs:
         cd platform/mobile/android
         gradle wrapper
 
-    # Forcefully injects the target rule to overwrite the project default
-    - name: Inject Correct Native Build Target
+    # Directly patches the build target inside the application build file
+    - name: Patch App Build Target Configuration
       run: |
-        echo "android.nativeBuildTargets=daytona_app" >> platform/mobile/android/gradle.properties
+        sed -i "s/'daytona'/'daytona_app'/g" platform/mobile/android/app/build.gradle
 
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew

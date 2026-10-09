@@ -19,7 +19,6 @@ jobs:
         distribution: 'zulu'
         java-version: '17'
 
-    # Overrides the default packages to skip the broken 'tools' bundle
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       with:
@@ -32,6 +31,12 @@ jobs:
 
     - name: Run Extraction Setup
       run: python3 scripts/setup.py --no-build
+
+    # Generates the missing gradlew system wrapper files automatically
+    - name: Generate Missing Gradle Wrapper
+      run: |
+        cd platform/mobile/android
+        gradle wrapper
 
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew

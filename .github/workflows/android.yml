@@ -37,10 +37,10 @@ jobs:
         cd platform/mobile/android
         gradle wrapper
 
-    # Patches the broken hardcoded target configuration inside the source code
-    - name: Patch Native Build Targets
+    # Forcefully injects the target rule to overwrite the project default
+    - name: Inject Correct Native Build Target
       run: |
-        sed -i 's/android.nativeBuildTargets=daytona/android.nativeBuildTargets=daytona_app/g' platform/mobile/android/gradle.properties
+        echo "android.nativeBuildTargets=daytona_app" >> platform/mobile/android/gradle.properties
 
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew

@@ -37,10 +37,10 @@ jobs:
         cd platform/mobile/android
         gradle wrapper
 
-    # Directly patches the build target inside the application build file
+    # Patches the file so it builds BOTH the main app and the critical SDL3 dependencies
     - name: Patch App Build Target Configuration
       run: |
-        sed -i "s/'daytona'/'daytona_app'/g" platform/mobile/android/app/build.gradle
+        sed -i "s/'daytona'/'daytona_app', 'SDL3-shared'/g" platform/mobile/android/app/build.gradle
 
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew

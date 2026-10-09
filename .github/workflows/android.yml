@@ -42,15 +42,15 @@ jobs:
       run: |
         sed -i "s/'daytona'/'daytona_app', 'SDL3-shared'/g" platform/mobile/android/app/build.gradle
 
-    # Step B: Injects the naming rule right into the root C++ build configuration
+    # Step B: Injects the naming rule right into the correct arcade C++ configuration file
     - name: Force CMake to Output File as libmain
       run: |
-        echo "set_target_properties(daytona_app PROPERTIES OUTPUT_NAME \"main\")" >> CMakeLists.txt
+        echo "set_target_properties(daytona_app PROPERTIES OUTPUT_NAME \"main\")" >> arcade/CMakeLists.txt
 
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew
 
-    # Compiles everything on the first try with the proper binary naming system
+    # Compiles everything cleanly on the first shot with the proper internal binary layout names
     - name: Compile Finalized APK Container
       run: |
         cd platform/mobile/android

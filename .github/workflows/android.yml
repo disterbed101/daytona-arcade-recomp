@@ -36,6 +36,12 @@ jobs:
       run: |
         sed -i "/ndk {/a \            abiFilters 'arm64-v8a'" platform/mobile/android/app/build.gradle
 
+    # FIX: Generates the missing gradlew system infrastructure natively
+    - name: Initialize Gradle Wrapper Files
+      run: |
+        cd platform/mobile/android
+        gradle wrapper
+
     - name: Grant Execute Permission to Gradle
       run: chmod +x platform/mobile/android/gradlew
 

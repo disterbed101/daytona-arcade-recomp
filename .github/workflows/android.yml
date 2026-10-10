@@ -38,10 +38,7 @@ jobs:
         sed -i "s/'daytona'/'daytona_app', 'SDL3-shared'/g" platform/mobile/android/app/build.gradle
 
     # FIX 2: Forces CMake to rename the output binary to 'main' so the Java activity can find it
-    - name: Override Binary Output Name to Main
-      run: |
-        echo 'set_target_properties(daytona_app PROPERTIES OUTPUT_NAME "main")' >> CMakeLists.txt
-
+ 
     - name: Force 64-Bit ABI Packaging
       run: |
         sed -i "/ndk {/a \            abiFilters 'arm64-v8a'" platform/mobile/android/app/build.gradle
@@ -58,6 +55,14 @@ jobs:
       run: |
         cd platform/mobile/android
         ./gradlew assembleDebug --no-daemon
+
+    - name: Inspect APK Native Libraries
+      run: |
+        echo "=== Libraries packaged inside APK ==="
+        unzip -l platform/mobile/android/app/build/outputs/apk/debug/app-debug.apk | grep '\.so' || true
+
+        echo "=== Native libraries produced by CMake ==="
+        find platform/mobile/android/app/.cxx -type f -name '*.so' -print
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4
